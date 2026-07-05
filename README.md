@@ -25,3 +25,17 @@ The tenant-wide property for portal restriction is set to its default value ("No
 2. Authenticate as **Bravo Engineer (Standard User)** and attempt to navigate directly to the administrative portal. Confirm that the platform prevents entry and enforces the perimeter lockdown.
 3. Close the private browser window entirely to terminate the session.
 4. Open a new private browser window, authenticate as **Alpha Engineer**, ensure the User Administrator (UA) role is actively elevated through the Privileged Identity Management (PIM) tool, and verify that administrative data remains fully accessible.
+### Project 3 Deployment Summary: Administration Portal Access Lockdown
+
+**Problem Statement:**
+The default baseline properties configuration within the Microsoft Entra ID (MEID) tenant allowed standard, non-administrative user accounts to successfully log into the administrative management interface, exposing tenant configuration metrics, directory object lists, and schema metadata to unauthorized entities.
+
+**Root Cause Analysis:**
+The platform architecture implements an open directory read-access policy by default. Unless the administrative portal restriction constraint is explicitly activated within the global directory schema, the web interface honors standard user session tokens for portal entry, disabling write permissions but leaving directory structure data visible.
+
+**Remedy and Final State:**
+The Global Administrator logged into the portal, navigated to the Microsoft Entra ID (MEID) User settings workspace, flipped the "Restrict access to Microsoft Entra admin center" configuration toggle from "No" to "Yes", and saved the modification. After allowing a 15-minute propagation window for the global policy change to replicate across all distributed identity endpoints, validation testing in a fresh private browser window confirmed the successful enforcement of three distinct, role-bounded architectural states:
+
+*   **Global Administrator:** Retains full authorized Read and Write capabilities to view and alter global tenant configurations.
+*   **User Administrator (UA):** Retains authorized Read capabilities to navigate the directory but is restricted from modifying the underlying tenant-wide properties.
+*   **Bravo Engineer (Standard User):** Encounters an immediate, hard Access Denied block page returning an explicit insufficient privileges error, completely blocking entry to the administrative management perimeter.
